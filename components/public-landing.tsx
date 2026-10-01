@@ -62,6 +62,15 @@ function useReveal() {
   return ref;
 }
 
+/* The hero conversation. The first three lines are the widget's own demo script. */
+const HERO_CHAT = [
+  { from: "buyer", text: "Hi, I'm looking for a 3-bedroom home in Austin." },
+  { from: "sloane", text: "Great choice! Austin's market is moving fast. What's your approximate budget range?" },
+  { from: "buyer", text: "Around $450,000" },
+  { from: "sloane", text: "I have three that fit. Want to see the first one this Saturday at 10am?" },
+  { from: "buyer", text: "Yes please" },
+];
+
 const STATS = [
   { value: "40%", label: "LEAD CONVERSION VS AVERAGE", sub: "Avg. Portfolio Growth" },
   { value: "3s", label: "RESPONSE TIME", sub: "● 300x Faster Than Human" },
@@ -159,24 +168,44 @@ export function PublicLanding() {
       </header>
 
       {/* ── Hero ── */}
-      <section className="b2b-hero">
-        <div className="b2b-hero-left">
-          <span className="b2b-kicker">Now Powered By Advanced AI</span>
-          <h1>Zero-Latency<br />Lead<br />Engagement.</h1>
-          <p>Qualify, tag, and book appointments without human intervention. RealtyOS bridges the gap between lead generation and closed deals.</p>
-          <div className="b2b-hero-cta">
-            <Link href="/admin/register" className="b2b-btn-primary-lg">
-              Get Started for Free <Icon.ArrowRight size={16} />
-            </Link>
-            <Link href={"/demo" as any} className="b2b-btn-outline-lg">
-              <Icon.Play size={14} /> Watch Demo
-            </Link>
+      <section className="b2b-hero2">
+        <div className="b2b-hero2-photo">
+          <Image src="/hero-bg.png" alt="A modern home at dusk, lit from inside, with a pool in the garden" fill priority sizes="(max-width: 900px) 100vw, 62vw" />
+          <div className="b2b-hero2-copy">
+            <h1>Every enquiry answered <em>before they call someone else.</em></h1>
+            <p>RealtyOS replies to each new lead in seconds, asks the right questions and books the viewing. Your agents only step in when someone is ready.</p>
+            <div className="b2b-hero-cta">
+              <Link href="/admin/register" className="b2b-btn-primary-lg">
+                Get Started for Free <Icon.ArrowRight size={16} />
+              </Link>
+              <Link href={"/demo" as any} className="b2b-hero2-link">
+                Watch it handle a lead
+              </Link>
+            </div>
           </div>
         </div>
-        <div className="b2b-hero-right">
-          <div className="b2b-hero-screenshot">
-            <Image src="/hero-bg.png" alt="RealtyOS Dashboard Preview" width={540} height={360} priority
-              style={{ borderRadius: "12px", objectFit: "cover", width: "100%", height: "auto", boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }} />
+
+        {/* One enquiry, from first message to booked viewing, as the buyer sees it. */}
+        <div className="b2b-hero2-chat" role="img" aria-label="An example conversation: a buyer asks about a three-bedroom home in Austin, Sloane asks their budget, offers a Saturday viewing, and the viewing is booked.">
+          <div className="b2b-hero2-who">
+            <Image src="/sloane-avatar.png" alt="" width={38} height={38} />
+            <div>
+              <strong>Sloane</strong>
+              <span>Replies in seconds</span>
+            </div>
+          </div>
+          {HERO_CHAT.map((m) => (
+            <p key={m.text} className={m.from === "buyer" ? "b2b-hero2-msg is-buyer" : "b2b-hero2-msg"}>{m.text}</p>
+          ))}
+          <div className="b2b-hero2-booked">
+            <Image src="/property-1.png" alt="" width={78} height={62} />
+            <div>
+              <strong>Viewing booked</strong>
+              <span>Saturday, 10:00am</span>
+            </div>
+            <i aria-hidden="true">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.4"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+            </i>
           </div>
         </div>
       </section>
