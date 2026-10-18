@@ -1,6 +1,7 @@
 "use client";
 
 import { useAdminData } from "@/lib/use-admin-data";
+import { useAdminHref } from "@/lib/demo-data";
 import { getInitials, getSourceColor, getSourceLabel, getAvatarColor, timeAgo } from "@/lib/admin-helpers";
 import { useToast } from "@/components/toast";
 import Image from "next/image";
@@ -30,6 +31,7 @@ const FALLBACK_LEADS = [
 
 export function AdminDashboard() {
   const { leads, metrics, stats, loading, refresh } = useAdminData();
+  const adminHref = useAdminHref();
   const { toast } = useToast();
 
   const displayLeads = leads.length > 0 ? leads.slice(0, 5) : FALLBACK_LEADS;
@@ -56,7 +58,6 @@ export function AdminDashboard() {
           </div>
           <div className="crm-metric-value">
             <strong>{avgResponse}</strong>
-            <span className="trend-up">↑ 12%</span>
           </div>
           <p className="crm-metric-sub">Target response is &lt; 5s</p>
         </div>
@@ -99,7 +100,7 @@ export function AdminDashboard() {
               <span className="pulse-dot"></span>
               <h2>Live Ingest Feed</h2>
             </div>
-            <Link href={"/admin/leads" as any} className="crm-text-button">
+            <Link href={adminHref("/admin/leads") as any} className="crm-text-button">
               View All Leads
             </Link>
           </div>
@@ -204,10 +205,10 @@ export function AdminDashboard() {
             </div>
 
             <div className="crm-insight-actions">
-              <Link href={"/admin/leads" as any} className="crm-btn-primary-large">
+              <Link href={adminHref("/admin/leads") as any} className="crm-btn-primary-large">
                 View Full Profile
               </Link>
-              <Link href={"/admin/schedule" as any} className="crm-btn-outline-large">
+              <Link href={adminHref("/admin/schedule") as any} className="crm-btn-outline-large">
                 Schedule Appointment
               </Link>
             </div>

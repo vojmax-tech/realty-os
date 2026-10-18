@@ -1361,16 +1361,21 @@ textarea:focus {
   border-radius: var(--radius-full);
   width: 56px;
   height: 56px;
-  background: var(--brand-blue);
+  background: #15130f;
   color: #fff;
   display: grid;
   place-items: center;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
-  transition: transform var(--transition);
+  box-shadow: 0 6px 18px rgba(21, 19, 15, 0.35);
+  transition: transform var(--transition), background-color var(--transition);
 }
 .sloane-fab:hover {
   transform: scale(1.05);
+  background: #ff7300;
+}
+.sloane-fab:focus-visible {
+  outline: 2px solid #ff7300;
+  outline-offset: 3px;
 }
 .sloane-fab svg {
   width: 24px;
@@ -2485,6 +2490,22 @@ textarea:focus {
   min-width: 0;
   background: var(--bg);
 }
+
+/* Only on /showcase: says the workspace is fictional before anything else does. */
+.crm-demo-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin: 0;
+  padding: 9px 32px;
+  background: #16130f;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.8rem;
+}
+.crm-demo-bar strong { color: #ff7300; font-weight: 700; }
+.crm-demo-bar a { margin-left: auto; color: #fff; font-weight: 600; text-underline-offset: 3px; }
+.crm-logout-btn { display: inline-flex; align-items: center; }
 
 .crm-topbar {
   display: flex;
@@ -3732,6 +3753,44 @@ select.crm-filter-dropdown { appearance: auto; background: var(--surface); borde
 .b2b-play-icon { font-size: 0.75rem; }
 .b2b-hero-right { display: flex; justify-content: center; }
 .b2b-hero-screenshot { width: 100%; max-width: 420px; }
+
+/* ── Hero: photo and headline on the left, one enquiry answered on the right ── */
+.b2b-hero2 { display: grid; grid-template-columns: minmax(0, 1fr) 34rem; min-height: calc(100svh - 61px); }
+.b2b-hero2-photo { position: relative; display: flex; align-items: flex-end; color: #fff; isolation: isolate; }
+.b2b-hero2-photo > img { object-fit: cover; z-index: -2; }
+.b2b-hero2-photo::after {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(180deg, rgba(35,25,15,0.15) 0%, rgba(35,25,15,0.1) 30%, rgba(35,25,15,0.45) 58%, rgba(35,25,15,0.93) 100%);
+}
+.b2b-hero2-copy { padding: 48px 56px 60px 48px; max-width: 46rem; }
+.b2b-hero2-copy h1 { font-size: clamp(2.6rem, 4.9vw, 4.5rem); font-weight: 800; line-height: 1.02; letter-spacing: -0.035em; margin: 0; color: #fff; }
+.b2b-hero2-copy h1 em { font-style: normal; color: #ffb066; }
+.b2b-hero2-copy p { font-size: 1.15rem; line-height: 1.6; color: rgba(255,255,255,0.84); margin: 20px 0 30px; max-width: 32.5rem; }
+.b2b-hero2-link { color: #fff; font-weight: 600; font-size: 1rem; text-decoration: none; padding: 8px 4px; }
+.b2b-hero2-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+.b2b-hero2-chat { display: flex; flex-direction: column; justify-content: center; gap: 12px; padding: 40px 44px; background: var(--bg-alt); }
+.b2b-hero2-who { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.b2b-hero2-who img { border-radius: 50%; }
+.b2b-hero2-who strong { display: block; font-size: 0.95rem; color: var(--text); }
+.b2b-hero2-who span { display: block; font-size: 0.8rem; font-weight: 500; color: var(--success); }
+.b2b-hero2-msg { align-self: flex-start; max-width: 86%; margin: 0; padding: 13px 16px; border-radius: 16px 16px 16px 5px; background: var(--surface); color: var(--text); font-size: 0.97rem; line-height: 1.45; box-shadow: 0 1px 0 rgba(15,23,42,0.06); }
+.b2b-hero2-msg.is-buyer { align-self: flex-end; border-radius: 16px 16px 5px 16px; background: var(--primary); color: #fff; box-shadow: none; }
+.b2b-hero2-booked { display: flex; align-items: center; gap: 14px; width: 86%; padding: 14px 16px; border-radius: 16px; background: var(--surface); box-shadow: 0 1px 0 rgba(15,23,42,0.06); }
+.b2b-hero2-booked img { border-radius: 10px; object-fit: cover; }
+.b2b-hero2-booked strong { display: block; font-size: 1rem; color: var(--text); }
+.b2b-hero2-booked span { font-size: 0.875rem; color: var(--text-soft); }
+.b2b-hero2-booked i { display: grid; place-items: center; width: 24px; height: 24px; margin-left: auto; flex: none; border-radius: 50%; background: var(--success); }
+@media (max-width: 900px) {
+  .b2b-hero2 { grid-template-columns: 1fr; min-height: auto; }
+  .b2b-hero2-photo { min-height: 34rem; }
+  .b2b-hero2-photo::after { background: linear-gradient(180deg, rgba(35,25,15,0.35) 0%, rgba(35,25,15,0.6) 35%, rgba(35,25,15,0.94) 100%); }
+  .b2b-hero2-copy { padding: 40px 20px 34px; }
+  .b2b-hero2-copy p { font-size: 1rem; }
+  .b2b-hero2-copy .b2b-hero-cta { flex-direction: column; align-items: stretch; gap: 8px; }
+  .b2b-hero2-copy .b2b-btn-primary-lg { justify-content: center; padding: 15px 24px; }
+  .b2b-hero2-link { text-align: center; }
+  .b2b-hero2-chat { padding: 28px 18px 34px; }
+}
 
 /* ── Stats ── */
 .b2b-stats {

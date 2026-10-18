@@ -52,7 +52,7 @@ export function SloaneWidget() {
     : "Smart Property Assistant";
 
   const welcomeGreeting = isLanding
-    ? "Want to see how RealtyOS can 10x your lead pipeline?"
+    ? "Want to see how RealtyOS handles a new lead?"
     : isInquiry ? "I'm Sloane, your virtual real estate assistant. How can I help you today?"
     : isAgentDash ? "Need help navigating your dashboard or managing leads?"
     : isAdminDash ? "I can help you with team management, lead routing, or analytics."
@@ -84,23 +84,27 @@ export function SloaneWidget() {
     }
   }, []);
 
-  // Auto-open logic: only on landing page, only on first visit
+  // Auto-open logic: only on landing page, only on first visit, and only once
+  // the visitor has scrolled past the hero. The hero shows a Sloane conversation
+  // of its own, and the panel opening on a timer sat on top of it.
   useEffect(() => {
-    if (pathname === "/") {
-      const hasPopped = localStorage.getItem("sloane-has-popped");
-      if (!hasPopped) {
-        autoOpenTimeout.current = setTimeout(() => {
-          setViewState((curr) => {
-            if (curr === "closed") {
-              localStorage.setItem("sloane-has-popped", "true");
-              return "welcome";
-            }
-            return curr;
-          });
-        }, 3000); // 3 seconds is standard for homepage greetings
-      }
+    let onScroll: (() => void) | null = null;
+    if (pathname === "/" && !localStorage.getItem("sloane-has-popped")) {
+      onScroll = () => {
+        if (window.scrollY < window.innerHeight * 0.6) return;
+        window.removeEventListener("scroll", onScroll!);
+        setViewState((curr) => {
+          if (curr === "closed") {
+            localStorage.setItem("sloane-has-popped", "true");
+            return "welcome";
+          }
+          return curr;
+        });
+      };
+      window.addEventListener("scroll", onScroll, { passive: true });
     }
     return () => {
+      if (onScroll) window.removeEventListener("scroll", onScroll);
       if (autoOpenTimeout.current) clearTimeout(autoOpenTimeout.current);
     };
   }, [pathname]);
