@@ -33,7 +33,6 @@ const TUTORIALS: Section[] = [
     category: "Advanced",
     items: [
       { title: "Customizing Sloane's behavior", duration: "7 min", desc: "Tune the AI qualification prompts for your specific market." },
-      { title: "CRM integrations", duration: "5 min", desc: "Connect RealtyOS to Salesforce, HubSpot, or Follow Up Boss." },
     ],
   },
 ];

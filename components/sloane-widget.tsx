@@ -52,7 +52,7 @@ export function SloaneWidget() {
     : "Smart Property Assistant";
 
   const welcomeGreeting = isLanding
-    ? "Want to see how RealtyOS can 10x your lead pipeline?"
+    ? "Want to see how RealtyOS handles a new lead?"
     : isInquiry ? "I'm Sloane, your virtual real estate assistant. How can I help you today?"
     : isAgentDash ? "Need help navigating your dashboard or managing leads?"
     : isAdminDash ? "I can help you with team management, lead routing, or analytics."

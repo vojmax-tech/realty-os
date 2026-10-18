@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { LeadRecord } from "@/lib/types";
 import { getLeadTemperature } from "@/lib/admin-helpers";
+import { useDemoData } from "@/lib/demo-data";
 
 export interface AdminMetrics {
   processedMessages: number;
@@ -75,11 +76,14 @@ function computeStats(leads: LeadRecord[]): DerivedStats {
 }
 
 export function useAdminData() {
-  const [leads, setLeads] = useState<LeadRecord[]>([]);
-  const [metrics, setMetrics] = useState<AdminMetrics>(EMPTY_METRICS);
-  const [loading, setLoading] = useState(true);
+  // On /showcase the screens run on fictional data and never touch the API.
+  const demo = useDemoData();
+  const [leads, setLeads] = useState<LeadRecord[]>(demo?.leads ?? []);
+  const [metrics, setMetrics] = useState<AdminMetrics>(demo?.metrics ?? EMPTY_METRICS);
+  const [loading, setLoading] = useState(!demo);
 
   const refresh = useCallback(async () => {
+    if (demo) return;
     setLoading(true);
     try {
       const [leadsRes, metricsRes] = await Promise.all([
@@ -95,7 +99,7 @@ export function useAdminData() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [demo]);
 
   useEffect(() => {
     void refresh();

@@ -6,6 +6,7 @@ import { ReactNode, useCallback, useEffect, useState } from "react";
 import { NotificationPanel } from "@/components/notification-panel";
 import { useNotifications } from "@/lib/use-notifications";
 import { createClient } from "@/lib/supabase/client";
+import { useDemoData } from "@/lib/demo-data";
 
 import { Logo } from "@/components/logo";
 
@@ -20,6 +21,15 @@ const NAV_ITEMS = [
 const BOTTOM_NAV_ITEMS = [
   { href: "/admin/settings", label: "Settings", icon: "Settings" },
 ];
+
+/* Admin screens that also run on fictional data at /showcase. Listings and
+   settings read and write the live database, so the showcase leaves them out. */
+const DEMO_ROUTES: Record<string, string> = {
+  "/admin": "/showcase",
+  "/admin/leads": "/showcase/leads",
+  "/admin/analytics": "/showcase/analytics",
+  "/admin/schedule": "/showcase/schedule",
+};
 
 function Icon({ name, className = "" }: { name: string; className?: string }) {
   switch (name) {
@@ -62,19 +72,35 @@ export function AdminShell({
   const [userRole, setUserRole] = useState("Lead Specialist");
 
   const { notifications, unreadCount, markAllRead, clearAll, syncFromLeads } = useNotifications();
+  const demo = useDemoData();
+
+  // The showcase only offers the screens that run on demo data.
+  const navItems = demo
+    ? NAV_ITEMS.filter((i) => DEMO_ROUTES[i.href]).map((i) => ({ ...i, href: DEMO_ROUTES[i.href] }))
+    : NAV_ITEMS;
+  const bottomNavItems = demo ? [] : BOTTOM_NAV_ITEMS;
 
   // Load avatar & user info from localStorage
   useEffect(() => {
+    if (demo) {
+      setUserName("Jordan Avery");
+      setUserRole("Demo broker");
+      return;
+    }
     const storedAvatar = localStorage.getItem(AVATAR_STORAGE_KEY);
     if (storedAvatar) setAvatarSrc(storedAvatar);
     const storedName = localStorage.getItem(USER_NAME_KEY);
     if (storedName) setUserName(storedName);
     const storedRole = localStorage.getItem(USER_ROLE_KEY);
     if (storedRole) setUserRole(storedRole);
-  }, []);
+  }, [demo]);
 
   // Sync notifications from leads on mount
   useEffect(() => {
+    if (demo) {
+      syncFromLeads(demo.leads);
+      return;
+    }
     void fetch("/api/leads", { cache: "no-store" })
       .then((r) => r.json())
       .then((data) => {
@@ -83,15 +109,16 @@ export function AdminShell({
         }
       })
       .catch(() => {});
-  }, [syncFromLeads]);
+  }, [syncFromLeads, demo]);
 
   const handleAvatarClick = useCallback(() => {
+    if (demo) return;
     router.push("/admin/settings?tab=profile" as any);
-  }, [router]);
+  }, [router, demo]);
 
   // Subtitle logic based on path
   let subtitle = "Lead Management";
-  if (pathname === "/admin") subtitle = "Live Dashboard";
+  if (pathname === "/admin" || pathname === "/showcase") subtitle = "Live Dashboard";
   if (pathname.includes("analytics")) subtitle = "Admin Dashboard";
   if (pathname.includes("schedule")) subtitle = "Property Management";
   if (pathname.includes("settings")) subtitle = "Real Estate CRM";
@@ -136,10 +163,10 @@ export function AdminShell({
         </div>
 
         <nav className="crm-nav-main">
-          {NAV_ITEMS.map((item) => {
+          {navItems.map((item) => {
             const active =
-              item.href === "/admin"
-                ? pathname === "/admin"
+              item.href === "/admin" || item.href === "/showcase"
+                ? pathname === item.href
                 : pathname.startsWith(item.href);
 
             return (
@@ -157,7 +184,7 @@ export function AdminShell({
 
         <div className="crm-sidebar-bottom">
           <nav className="crm-nav-settings">
-            {BOTTOM_NAV_ITEMS.map((item) => {
+            {bottomNavItems.map((item) => {
               const active = pathname.startsWith(item.href);
               return (
                 <Link
@@ -172,12 +199,15 @@ export function AdminShell({
             })}
           </nav>
 
-          {/* Pro Plan Upsell Module */}
-          <div className="crm-pro-upsell">
-            <span className="upsell-badge">PRO PLAN</span>
-            <p>Upgrade for advanced AI matching</p>
-            <button className="crm-btn-white">Upgrade Now</button>
-          </div>
+          {/* Pro Plan Upsell Module. Its button has no plan behind it yet, so
+              the public showcase leaves it out rather than show a dead control. */}
+          {!demo && (
+            <div className="crm-pro-upsell">
+              <span className="upsell-badge">PRO PLAN</span>
+              <p>Upgrade for advanced AI matching</p>
+              <button className="crm-btn-white">Upgrade Now</button>
+            </div>
+          )}
 
           <div className="crm-user-profile">
             <div className="crm-user-avatar" onClick={handleAvatarClick} title="Click to change avatar" style={{ cursor: "pointer" }}>
@@ -191,20 +221,32 @@ export function AdminShell({
               <strong>{userName}</strong>
               <span>{userRole}</span>
             </div>
-            <button
-              className="crm-logout-btn"
-              onClick={handleLogout}
-              disabled={loggingOut}
-              title="Sign out"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            </button>
+            {demo ? (
+              <Link className="crm-logout-btn" href="/" title="Exit demo" aria-label="Exit demo">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              </Link>
+            ) : (
+              <button
+                className="crm-logout-btn"
+                onClick={handleLogout}
+                disabled={loggingOut}
+                title="Sign out"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              </button>
+            )}
           </div>
         </div>
       </aside>
 
       {/* ── Main Content Area ── */}
       <main className="crm-main">
+        {demo && (
+          <p className="crm-demo-bar">
+            <strong>Demo workspace.</strong> Every lead here is fictional and nothing you do is saved.
+            <Link href="/">Back to RealtyOS</Link>
+          </p>
+        )}
         <header className="crm-topbar">
           {title ? (
             <div className="crm-topbar-title">

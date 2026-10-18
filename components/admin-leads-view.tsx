@@ -12,6 +12,7 @@ import {
 } from "@/lib/admin-helpers";
 import { useToast } from "@/components/toast";
 import { LeadRecord } from "@/lib/types";
+import { useDemoData } from "@/lib/demo-data";
 
 const PAGE_SIZE = 10;
 
@@ -297,18 +298,21 @@ function LeadDetailPanel({ lead, onRefresh }: { lead: LeadRecord, onRefresh?: ()
   const [agents, setAgents] = useState<{id: string, name: string, email: string, role: string}[]>([]);
   const [showAssignSelect, setShowAssignSelect] = useState(false);
   const { toast } = useToast();
+  const demo = useDemoData();
 
   useEffect(() => {
+    if (demo) return;
     if (showAssignSelect && agents.length === 0) {
       fetch("/api/agents")
         .then(res => res.json())
         .then(data => setAgents(data.agents || []))
         .catch(console.error);
     }
-  }, [showAssignSelect, agents.length]);
+  }, [showAssignSelect, agents.length, demo]);
 
   async function handleAssign(agentId: string) {
     if (!agentId) return;
+    if (demo) return;
     try {
       await fetch(`/api/leads/${lead.id}/assign`, {
         method: "POST",
@@ -325,6 +329,10 @@ function LeadDetailPanel({ lead, onRefresh }: { lead: LeadRecord, onRefresh?: ()
   async function handleSendChatMessage(e: React.FormEvent) {
     e.preventDefault();
     if (!chatInput.trim()) return;
+    if (demo) {
+      toast("Demo workspace: messages aren't sent or saved.", "info");
+      return;
+    }
 
     setSendingChat(true);
     try {
@@ -473,9 +481,17 @@ function AddLeadModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: 
   const [source, setSource] = useState("website-form");
   const [message, setMessage] = useState("New lead added manually");
   const [submitting, setSubmitting] = useState(false);
+  const demo = useDemoData();
+  const { toast } = useToast();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    // /api/leads/ingest is public, so the showcase must never reach it.
+    if (demo) {
+      toast("Demo workspace: new leads aren't saved.", "info");
+      onClose();
+      return;
+    }
     setSubmitting(true);
     try {
       await fetch("/api/leads/ingest", {

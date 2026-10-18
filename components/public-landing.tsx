@@ -2,67 +2,24 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
-import { Icon } from "./icons";
 import { Logo } from "./logo";
+import { mono } from "./landing-fonts";
+import s from "./public-landing.module.css";
 
-/* ── Counting animation hook ── */
-function useCountUp(end: number, suffix: string, duration: number = 1800) {
-  const [display, setDisplay] = useState("0" + suffix);
-  const [started, setStarted] = useState(false);
-  const ref = useRef<HTMLElement>(null);
+/*
+ * The public face of RealtyOS.
+ *
+ * RealtyOS is a concept product built by Invocrea8: a working build that no
+ * brokerage runs yet. The page used to read like an established SaaS, with
+ * conversion figures, a customer count, CRM integrations and a pricing table,
+ * none of which existed. Everything below describes what the code does today,
+ * and the strip at the top says what the product is.
+ */
 
-  useEffect(() => {
-    if (!ref.current) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting && !started) setStarted(true); },
-      { threshold: 0.5 }
-    );
-    observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [started]);
+const INVOCREA8_CASE = "https://invocrea8.com/work/realty-os/";
+const INVOCREA8_CONTACT = "https://invocrea8.com/contact/";
 
-  useEffect(() => {
-    if (!started) return;
-    const start = performance.now();
-    const step = (now: number) => {
-      const progress = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-      setDisplay(Math.round(eased * end) + suffix);
-      if (progress < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }, [started, end, suffix, duration]);
-
-  return { ref, display };
-}
-
-/* ── Scroll-reveal hook ── */
-function useReveal() {
-  const ref = useRef<HTMLElement>(null);
-  useEffect(() => {
-    if (!ref.current) return;
-    const el = ref.current;
-    el.style.opacity = "0";
-    el.style.transform = "translateY(32px)";
-    el.style.transition = "opacity 0.7s ease, transform 0.7s ease";
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          el.style.opacity = "1";
-          el.style.transform = "translateY(0)";
-          observer.unobserve(el);
-        }
-      },
-      { threshold: 0.15 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-  return ref;
-}
-
-/* The hero conversation. The first three lines are the widget's own demo script. */
+/* One enquiry, from first message to booked viewing. The first three lines are the widget's own demo script. */
 const HERO_CHAT = [
   { from: "buyer", text: "Hi, I'm looking for a 3-bedroom home in Austin." },
   { from: "sloane", text: "Great choice! Austin's market is moving fast. What's your approximate budget range?" },
@@ -71,306 +28,274 @@ const HERO_CHAT = [
   { from: "buyer", text: "Yes please" },
 ];
 
-const STATS = [
-  { value: "40%", label: "LEAD CONVERSION VS AVERAGE", sub: "Avg. Portfolio Growth" },
-  { value: "3s", label: "RESPONSE TIME", sub: "● 300x Faster Than Human" },
-  { value: "10k+", label: "LEADS QUALIFYING MONTHLY", sub: "Trusted By Top Agencies" },
-  { value: "24/7", label: "OPERATION TIME", sub: "Never Miss A Lead" },
-];
-
-const FEATURES = [
+/* "A lot", itemised: the work that lands on an agent, and what the build does with it. */
+const LEDGER = [
   {
-    icon: (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>),
-    title: "Instant Lead Ingest",
-    desc: "Connect your lead sources and ingest prospects in under 3 seconds automatically.",
+    load: "The enquiry that lands at midnight.",
+    answer: "Sloane, the assistant on every public page, replies straight away and keeps the conversation going until someone is in the office.",
   },
   {
-    icon: (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>),
-    title: "AI Qualification",
-    desc: "Automatically capture Budget, Timeline, Location, and Property Type with natural dialogue.",
+    load: "The budget nobody asked about.",
+    answer: "The qualifier works through budget, timeline, location and property type, and notes which of the four are still missing.",
   },
   {
-    icon: (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>),
-    title: "Auto-Tagging",
-    desc: "Leads are instantly categorized and scored for your CRM with smart priority tags.",
+    load: "Ten new leads and no idea which to call first.",
+    answer: "Every lead gets a confidence score from 0 to 100 and tags like #HighIntent or #Relocation, so the hot ones sit at the top.",
   },
   {
-    icon: (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>),
-    title: "24/7 Availability",
-    desc: "Never miss a midnight lead again with our always-on AI receptionist assistant.",
+    load: "The viewing arranged by phone tag.",
+    answer: "When a lead is ready, the system proposes a slot and generates the calendar link. The agent sees it booked.",
+  },
+  {
+    load: "“Any update on my search?”",
+    answer: "Buyers get their own portal: saved homes, requested tours and a message thread with their agent.",
   },
 ];
 
-const BENEFITS = [
-  { icon: <Icon.Link size={22} />, title: "Seamless CRM Integration", desc: "Pushes data directly to Follow Up Boss, Salesforce, and HubSpot." },
-  { icon: <Icon.Mobile size={22} />, title: "Mobile Intake Forms", desc: "Clean, mobile-first lead forms that convert at 2x the industry average." },
-  { icon: <Icon.Calendar size={22} />, title: "Automatic Calendar Booking", desc: "Leads book directly onto your agent's calendars post-qualification." },
+const FLOW = [
+  { step: "01", title: "Enquiry", text: "A multi-step form or a chat with Sloane captures who they are and what they want." },
+  { step: "02", title: "Qualify", text: "Each message is scored on urgency, specificity and intent, alongside the four facts that matter." },
+  { step: "03", title: "Tag & rank", text: "The lead is tagged and ranked hot, warm or cold in the agent's live feed." },
+  { step: "04", title: "Book", text: "Qualified leads are offered a viewing slot with a Cal.com or Google Calendar link." },
 ];
 
-const PRICING_PLANS = [
-  { name: "Starter", price: "Free", period: "", desc: "For solo agents just getting started.", features: ["50 leads/month", "AI qualification", "Basic analytics", "Email support"], cta: "Get Started", highlight: false },
-  { name: "Professional", price: "$49", period: "/mo", desc: "For growing teams that need more power.", features: ["Unlimited leads", "CRM integrations", "Auto-tagging & scoring", "Priority support", "Team management"], cta: "Start Free Trial", highlight: true },
-  { name: "Enterprise", price: "Custom", period: "", desc: "For brokerages with advanced needs.", features: ["Everything in Pro", "Custom AI training", "Dedicated account manager", "SLA guarantees", "White-label options"], cta: "Contact Sales", highlight: false },
+const SURFACES = [
+  {
+    img: "/property-2.png",
+    label: "Public site",
+    title: "Where the enquiry starts",
+    text: "Marketing pages, the multi-step property enquiry, and Sloane in the corner of every page.",
+    href: "/inquiry",
+    cta: "Send a test enquiry",
+  },
+  {
+    img: "/property-3.png",
+    label: "Agent workspace",
+    title: "Where the team works",
+    text: "Live lead feed, pipeline with filters and CSV export, analytics, schedule, and listings management.",
+    href: "/showcase",
+    cta: "Open the demo workspace",
+  },
+  {
+    img: "/property-4.png",
+    label: "Client portal",
+    title: "Where the buyer checks in",
+    text: "Saved homes, tour requests and direct messages, behind the buyer's own sign-in.",
+    href: "/portal/login",
+    cta: "See the portal sign-in",
+  },
 ];
 
-const RESOURCES = [
-  { icon: <Icon.Book size={22} />, title: "Documentation", desc: "Explore the full RealtyOS platform architecture and API reference.", link: "/docs" },
-  { icon: <Icon.Hat size={22} />, title: "Getting Started Guide", desc: "A step-by-step walkthrough for new agents setting up their first pipeline.", link: "/getting-started" },
-  { icon: <Icon.Message size={22} />, title: "Community Forum", desc: "Connect with other real estate professionals using RealtyOS.", link: "/community" },
-  { icon: <Icon.Video size={22} />, title: "Video Tutorials", desc: "Watch short demos of key features like lead qualification and booking.", link: "/tutorials" },
-];
+const STACK = ["Next.js App Router", "TypeScript", "Postgres + Prisma", "Supabase Auth", "OpenAI, with a rule-based fallback"];
 
 export function PublicLanding() {
-  // Smooth scroll for all anchor links
-  useEffect(() => {
-    function handleAnchorClick(e: MouseEvent) {
-      const target = (e.target as HTMLElement).closest('a[href^="#"]');
-      if (!target) return;
-      e.preventDefault();
-      const id = (target as HTMLAnchorElement).getAttribute('href')!.slice(1);
-      const el = document.getElementById(id);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-    document.addEventListener('click', handleAnchorClick);
-    return () => document.removeEventListener('click', handleAnchorClick);
-  }, []);
-
-  // Counting stats
-  const stat1 = useCountUp(40, "%");
-  const stat2 = useCountUp(3, "s");
-  const stat3 = useCountUp(10, "k+");
-  const statRefs = [stat1, stat2, stat3];
-
-  // Section reveal refs
-  const featuresRef = useReveal();
-  const solutionsRef = useReveal();
-  const pricingRef = useReveal();
-  const resourcesRef = useReveal();
-  const ctaRef = useReveal();
   return (
-    <main className="lp-shell" style={{ background: "#FFFFFF", color: "#1E293B" }}>
+    <main className={`${s.page} ${mono.variable}`}>
+      {/* ── What this is ── */}
+      <p className={s.disclosure}>
+        <span className={s.disclosureTag}>Concept product</span>
+        <span>RealtyOS is a working demo built by Invocrea8. No brokerage runs it yet, and the leads you&rsquo;ll see are fictional.</span>
+        <a href={INVOCREA8_CASE}>Read the case study</a>
+      </p>
+
       {/* ── Header ── */}
-      <header className="b2b-header">
-        <Link className="b2b-logo" href="/">
-          <Logo size={28} />
+      <header className={s.header}>
+        <Link className={s.brand} href="/">
+          <Logo size={26} />
           <strong>RealtyOS</strong>
         </Link>
-        <nav className="b2b-nav">
-          <a href="#features">Features</a>
-          <a href="#solutions">Solutions</a>
-          <a href="#pricing">Pricing</a>
-          <a href="#resources">Resources</a>
+        <nav className={s.nav} aria-label="Primary">
+          <a href="#ledger">The problem</a>
+          <a href="#flow">How it works</a>
+          <a href="#workspace">Workspace</a>
+          <a href="#surfaces">Portal</a>
         </nav>
-        <div className="b2b-header-actions">
-          <Link className="b2b-btn-ghost" href="/admin/login">Login</Link>
-          <Link className="b2b-btn-primary" href="/admin/register">Get Started</Link>
+        <div className={s.headerActions}>
+          <Link className={s.linkQuiet} href="/admin/login">Agent sign-in</Link>
+          <Link className={s.btnInk} href={"/showcase" as any}>Try the demo</Link>
         </div>
       </header>
 
       {/* ── Hero ── */}
-      <section className="b2b-hero2">
-        <div className="b2b-hero2-photo">
-          <Image src="/hero-bg.png" alt="A modern home at dusk, lit from inside, with a pool in the garden" fill priority sizes="(max-width: 900px) 100vw, 62vw" />
-          <div className="b2b-hero2-copy">
-            <h1>Every enquiry answered <em>before they call someone else.</em></h1>
-            <p>RealtyOS replies to each new lead in seconds, asks the right questions and books the viewing. Your agents only step in when someone is ready.</p>
-            <div className="b2b-hero-cta">
-              <Link href="/admin/register" className="b2b-btn-primary-lg">
-                Get Started for Free <Icon.ArrowRight size={16} />
-              </Link>
-              <Link href={"/demo" as any} className="b2b-hero2-link">
-                Watch it handle a lead
-              </Link>
-            </div>
+      <section className={s.hero}>
+        <div className={s.heroHead}>
+          <p className={s.kicker}>RealtyOS / Lead engagement for property teams</p>
+          <h1 className={s.headline}>
+            Real estate <br />
+            is <em>a lot.</em>
+          </h1>
+        </div>
+        <div className={s.heroSide}>
+          <p className={s.lede}>
+            Enquiries at 11pm. Budgets nobody asked about. Viewings booked by phone tag.
+            RealtyOS answers each new lead in seconds, asks the questions an agent would,
+            and hands over only the people who are ready to view.
+          </p>
+          <div className={s.ctaRow}>
+            <Link className={s.btnOrange} href="/inquiry">Send a test enquiry</Link>
+            <Link className={s.btnLine} href={"/showcase" as any}>Explore the agent workspace</Link>
           </div>
         </div>
 
-        {/* One enquiry, from first message to booked viewing, as the buyer sees it. */}
-        <div className="b2b-hero2-chat" role="img" aria-label="An example conversation: a buyer asks about a three-bedroom home in Austin, Sloane asks their budget, offers a Saturday viewing, and the viewing is booked.">
-          <div className="b2b-hero2-who">
-            <Image src="/sloane-avatar.png" alt="" width={38} height={38} />
-            <div>
-              <strong>Sloane</strong>
-              <span>Replies in seconds</span>
+        <div className={s.heroStage}>
+          <Image
+            src="/hero-bg.png"
+            alt="A modern home at dusk, lit from inside, with a pool in the garden"
+            fill
+            priority
+            sizes="100vw"
+            className={s.heroPhoto}
+          />
+          <div
+            className={s.chat}
+            role="img"
+            aria-label="An example conversation: a buyer asks about a three-bedroom home in Austin, Sloane asks their budget, offers a Saturday viewing, and the viewing is booked."
+          >
+            <div className={s.chatWho}>
+              <Image src="/sloane-avatar.png" alt="" width={34} height={34} />
+              <div>
+                <strong>Sloane</strong>
+                <span>RealtyOS assistant</span>
+              </div>
+            </div>
+            {HERO_CHAT.map((m) => (
+              <p key={m.text} className={m.from === "buyer" ? `${s.msg} ${s.msgBuyer}` : s.msg}>{m.text}</p>
+            ))}
+            <div className={s.booked}>
+              <Image src="/property-1.png" alt="" width={64} height={50} />
+              <div>
+                <strong>Viewing booked</strong>
+                <span>Saturday, 10:00am</span>
+              </div>
+              <i aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.4"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+              </i>
             </div>
           </div>
-          {HERO_CHAT.map((m) => (
-            <p key={m.text} className={m.from === "buyer" ? "b2b-hero2-msg is-buyer" : "b2b-hero2-msg"}>{m.text}</p>
+          <p className={s.caption}>Fig. 1 — One enquiry, first message to booked viewing.</p>
+        </div>
+      </section>
+
+      {/* ── The ledger ── */}
+      <section className={s.ledger} id="ledger">
+        <div className={s.sectionHead}>
+          <p className={s.kicker}>Itemised</p>
+          <h2 className={s.h2}>What &ldquo;a lot&rdquo; actually means.</h2>
+        </div>
+        <ol className={s.ledgerList}>
+          {LEDGER.map((row, i) => (
+            <li key={row.load} className={s.ledgerRow}>
+              <span className={s.ledgerNum}>{String(i + 1).padStart(2, "0")}</span>
+              <p className={s.ledgerLoad}>{row.load}</p>
+              <p className={s.ledgerAnswer}>{row.answer}</p>
+            </li>
           ))}
-          <div className="b2b-hero2-booked">
-            <Image src="/property-1.png" alt="" width={78} height={62} />
-            <div>
-              <strong>Viewing booked</strong>
-              <span>Saturday, 10:00am</span>
-            </div>
-            <i aria-hidden="true">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.4"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
-            </i>
-          </div>
-        </div>
+        </ol>
       </section>
 
-      {/* ── Stats Bar ── */}
-      <section className="b2b-stats">
-        {STATS.map((s, i) => (
-          <div key={s.label} className="b2b-stat-item">
-            <strong ref={i < 3 ? statRefs[i].ref as any : undefined}>{i < 3 ? statRefs[i].display : s.value}</strong>
-            <span className="b2b-stat-label">{s.label}</span>
-            <span className="b2b-stat-sub">{s.sub}</span>
-          </div>
-        ))}
-      </section>
-
-      {/* ── Features ── */}
-      <section className="b2b-features" id="features" ref={featuresRef as any}>
-        <div className="b2b-section-header">
-          <span className="b2b-kicker">POWERFUL FEATURES</span>
-          <h2>Real-Time Intelligence for<br />Modern Real Estate</h2>
-          <p>Our AI-driven engine handles the heavy-lifting of lead qualification so your team can focus on closing deals.</p>
+      {/* ── Flow ── */}
+      <section className={s.flow} id="flow">
+        <div className={s.sectionHead}>
+          <p className={s.kicker}>How it works</p>
+          <h2 className={s.h2}>One lead, start to <em>booked.</em></h2>
         </div>
-        <div className="b2b-features-grid">
-          {FEATURES.map((f) => (
-            <article key={f.title} className="b2b-feature-card">
-              <div className="b2b-feature-icon">{f.icon}</div>
+        <div className={s.flowGrid}>
+          {FLOW.map((f) => (
+            <article key={f.step} className={s.flowCard}>
+              <span className={s.flowStep}>{f.step}</span>
               <h3>{f.title}</h3>
-              <p>{f.desc}</p>
+              <p>{f.text}</p>
             </article>
           ))}
         </div>
       </section>
 
-      {/* ── Solutions / Benefits ── */}
-      <section className="b2b-solutions" id="solutions" ref={solutionsRef as any}>
-        <div className="b2b-solutions-content">
-          <div className="b2b-solutions-text">
-            <h2>Designed for high-growth real estate teams</h2>
-            <div className="b2b-benefits-list">
-              {BENEFITS.map((b) => (
-                <div key={b.title} className="b2b-benefit-item">
-                  <span className="b2b-benefit-icon">{b.icon}</span>
-                  <div>
-                    <h4>{b.title}</h4>
-                    <p>{b.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+      {/* ── Workspace ── */}
+      <section className={s.workspace} id="workspace">
+        <div className={s.workspaceHead}>
+          <div>
+            <p className={s.kickerLight}>The agent workspace</p>
+            <h2 className={s.h2Light}>The hot lead is <em>always on top.</em></h2>
           </div>
-          <div className="b2b-solutions-img">
-            <div className="b2b-phone-mockup">
-              <Image src="/property-1.png" alt="Mobile Intake Form Preview" width={320} height={500}
-                style={{ borderRadius: "24px", objectFit: "cover", width: "100%", height: "auto", boxShadow: "0 20px 60px rgba(0,0,0,0.12)" }} />
-            </div>
-          </div>
+          <p className={s.workspaceText}>
+            A live feed ranked by qualification score, the facts behind each score, and the tags that
+            explain it. Open the demo workspace to click through the real screens on fictional leads.
+          </p>
         </div>
+        <Link href={"/showcase" as any} className={s.screenFrame} aria-label="Open the demo workspace">
+          <Image
+            src="/showcase-dashboard.png"
+            alt="The RealtyOS dashboard: response time, lead count and conversion cards above a live lead feed and the selected lead's qualification score, budget, timeline and tags."
+            width={2880}
+            height={1800}
+            sizes="(max-width: 1100px) 100vw, 1100px"
+          />
+        </Link>
       </section>
 
-      {/* ── Pricing ── */}
-      <section className="b2b-pricing" id="pricing" ref={pricingRef as any}>
-        <div className="b2b-section-header">
-          <span className="b2b-kicker">SIMPLE PRICING</span>
-          <h2>Plans that scale with your business</h2>
-          <p>Start free. Upgrade when you need more power. No hidden fees.</p>
+      {/* ── Surfaces ── */}
+      <section className={s.surfaces} id="surfaces">
+        <div className={s.sectionHead}>
+          <p className={s.kicker}>Three surfaces, one record</p>
+          <h2 className={s.h2}>Buyer, agent and broker see the same lead.</h2>
         </div>
-        <div className="b2b-pricing-grid">
-          {PRICING_PLANS.map((plan) => (
-            <div key={plan.name} className={`b2b-pricing-card ${plan.highlight ? "b2b-pricing-highlight" : ""}`}>
-              <h3>{plan.name}</h3>
-              <div className="b2b-pricing-price">
-                <strong>{plan.price}</strong>{plan.period && <span>{plan.period}</span>}
+        <div className={s.surfaceGrid}>
+          {SURFACES.map((x) => (
+            <article key={x.label} className={s.surface}>
+              <div className={s.surfaceImg}>
+                <Image src={x.img} alt="" fill sizes="(max-width: 800px) 100vw, 33vw" />
+                <span>{x.label}</span>
               </div>
-              <p className="b2b-pricing-desc">{plan.desc}</p>
-              <ul className="b2b-pricing-features">
-                {plan.features.map((f) => (
-                  <li key={f}><Icon.Check size={16} /> <span>{f}</span></li>
-                ))}
-              </ul>
-              <Link href="/admin/register" className={plan.highlight ? "b2b-btn-primary-lg" : "b2b-btn-outline-lg"} style={{ width: "100%", justifyContent: "center", textDecoration: "none" }}>
-                {plan.cta}
-              </Link>
-            </div>
+              <h3>{x.title}</h3>
+              <p>{x.text}</p>
+              <Link href={x.href as any} className={s.surfaceLink}>{x.cta} &rarr;</Link>
+            </article>
           ))}
         </div>
       </section>
 
-      {/* ── Resources ── */}
-      <section className="b2b-resources" id="resources" ref={resourcesRef as any}>
-        <div className="b2b-section-header">
-          <span className="b2b-kicker">RESOURCES</span>
-          <h2>Everything you need to succeed</h2>
-          <p>Guides, documentation, and community support to help you get the most out of RealtyOS.</p>
-        </div>
-        <div className="b2b-resources-grid">
-          {RESOURCES.map((r) => (
-            <Link key={r.title} href={r.link as any} className="b2b-resource-card">
-              <span className="b2b-resource-icon">{r.icon}</span>
-              <h4>{r.title}</h4>
-              <p>{r.desc}</p>
-            </Link>
-          ))}
-        </div>
+      {/* ── Build ── */}
+      <section className={s.build}>
+        <p className={s.kicker}>Under the hood</p>
+        <ul className={s.stack}>
+          {STACK.map((t) => <li key={t}>{t}</li>)}
+        </ul>
+        <p className={s.buildNote}>
+          Without an OpenAI key, Sloane and the qualifier fall back to scripted replies and rule-based
+          scoring, so the demo keeps working.
+        </p>
       </section>
 
-      {/* ── CTA Banner ── */}
-      <section className="b2b-cta" ref={ctaRef as any}>
-        <div className="b2b-cta-inner">
-          <div className="b2b-cta-text">
-            <h2>Ready to stop losing leads?</h2>
-            <p>Join 500+ top-producing teams automating their lead qualification today.</p>
-          </div>
-          <div className="b2b-cta-actions">
-            <Link href="/admin/register" className="b2b-cta-btn-primary">Start Free Trial</Link>
-            <Link href={"/demo" as any} className="b2b-cta-btn-outline">Book a Demo</Link>
-          </div>
+      {/* ── CTA ── */}
+      <section className={s.cta}>
+        <h2 className={s.ctaTitle}>Want this for <em>your agency?</em></h2>
+        <p>
+          RealtyOS is a starting point. Invocrea8 builds a version around how your team handles leads today:
+          your brand, your domain, your calendar.
+        </p>
+        <div className={s.ctaRow}>
+          <a className={s.btnOrange} href={INVOCREA8_CONTACT}>Talk to Invocrea8</a>
+          <a className={s.btnLineLight} href={INVOCREA8_CASE}>Read the case study</a>
         </div>
       </section>
 
       {/* ── Footer ── */}
-      <footer className="b2b-footer">
-        <div className="b2b-footer-grid">
-          <div className="b2b-footer-brand">
-            <div className="b2b-footer-logo">
-              <Logo size={28} />
-              <strong>RealtyOS</strong>
-            </div>
-            <p>The intelligent layer for real estate professionals. Scale your business without scaling your overhead.</p>
-            <div className="b2b-social-links">
-              <a href="#" aria-label="Instagram">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-              </a>
-              <a href="#" aria-label="Twitter">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg>
-              </a>
-            </div>
-          </div>
-
-          <div className="b2b-footer-col">
-            <h5>Product</h5>
-            <Link href={"/automations" as any}>Automations</Link>
-            <a href="#features">Lead Scoring</a>
-            <a href="#features">Integrations</a>
-            <a href="#pricing">Pricing</a>
-          </div>
-
-          <div className="b2b-footer-col">
-            <h5>Company</h5>
-            <Link href={"/about" as any}>About Us</Link>
-            <Link href={"/careers" as any}>Careers</Link>
-            <Link href={"/privacy" as any}>Privacy Policy</Link>
-            <Link href={"/terms" as any}>Terms of Service</Link>
-          </div>
-
-          <div className="b2b-footer-col">
-            <h5>Support</h5>
-            <Link href={"/help" as any}>Help Center</Link>
-            <Link href="/docs">API Docs</Link>
-            <Link href={"/contact" as any}>Contact</Link>
-          </div>
+      <footer className={s.footer}>
+        <div className={s.brand}>
+          <Logo size={22} />
+          <strong>RealtyOS</strong>
         </div>
-
-        <div className="b2b-footer-bottom">
-          <span>&copy; {new Date().getFullYear()} RealtyOS, Inc. All rights reserved.</span>
-        </div>
+        <nav className={s.footerNav} aria-label="Footer">
+          <Link href={"/about" as any}>About</Link>
+          <Link href="/docs">Docs</Link>
+          <Link href={"/help" as any}>Help</Link>
+          <Link href={"/privacy" as any}>Privacy</Link>
+          <Link href={"/terms" as any}>Terms</Link>
+          <Link href={"/contact" as any}>Contact</Link>
+        </nav>
+        <p className={s.footerNote}>
+          A concept product designed and built by <a href="https://invocrea8.com/">Invocrea8</a>.
+        </p>
       </footer>
     </main>
   );

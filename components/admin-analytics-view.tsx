@@ -1,11 +1,13 @@
 "use client";
 
 import { useAdminData } from "@/lib/use-admin-data";
+import { useAdminHref } from "@/lib/demo-data";
 import { getSourceLabel } from "@/lib/admin-helpers";
 import Link from "next/link";
 
 export function AdminAnalyticsView() {
   const { leads, metrics, stats } = useAdminData();
+  const adminHref = useAdminHref();
 
   // Compute weekly buckets from lead createdAt for bar chart
   const now = Date.now();
@@ -148,7 +150,7 @@ export function AdminAnalyticsView() {
         <div className="crm-detail-card">
           <div className="crm-chart-head">
             <h3>Lead Sources Performance</h3>
-            <Link href={"/admin/leads" as any} className="crm-link-text">View All →</Link>
+            <Link href={adminHref("/admin/leads") as any} className="crm-link-text">View All →</Link>
           </div>
           <div className="crm-sources-list">
             {sortedSources.length > 0 ? (
@@ -190,7 +192,8 @@ export function AdminAnalyticsView() {
             <span className="live-badge">LIVE FEED</span>
           </div>
           <p className="tracker-copy">
-            Your response speed is in the top 5% of all brokers in the network. Fast responses result in a <strong>42% higher conversion rate</strong> on average.
+            {/* Only what the metrics say. The old copy cited a network ranking and a conversion uplift with no data behind either. */}
+            <strong>{metrics.underThreeSecondsRate || 0}%</strong> of enquiries got their first reply in under three seconds, across {metrics.processedMessages} processed messages.
           </p>
           <div className="tracker-stats-grid">
             <div className="tracker-stat">

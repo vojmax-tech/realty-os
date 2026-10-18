@@ -1361,16 +1361,21 @@ textarea:focus {
   border-radius: var(--radius-full);
   width: 56px;
   height: 56px;
-  background: var(--brand-blue);
+  background: #15130f;
   color: #fff;
   display: grid;
   place-items: center;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
-  transition: transform var(--transition);
+  box-shadow: 0 6px 18px rgba(21, 19, 15, 0.35);
+  transition: transform var(--transition), background-color var(--transition);
 }
 .sloane-fab:hover {
   transform: scale(1.05);
+  background: #ff7300;
+}
+.sloane-fab:focus-visible {
+  outline: 2px solid #ff7300;
+  outline-offset: 3px;
 }
 .sloane-fab svg {
   width: 24px;
@@ -2485,6 +2490,22 @@ textarea:focus {
   min-width: 0;
   background: var(--bg);
 }
+
+/* Only on /showcase: says the workspace is fictional before anything else does. */
+.crm-demo-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin: 0;
+  padding: 9px 32px;
+  background: #16130f;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.8rem;
+}
+.crm-demo-bar strong { color: #ff7300; font-weight: 700; }
+.crm-demo-bar a { margin-left: auto; color: #fff; font-weight: 600; text-underline-offset: 3px; }
+.crm-logout-btn { display: inline-flex; align-items: center; }
 
 .crm-topbar {
   display: flex;
